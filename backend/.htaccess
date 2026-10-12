@@ -1,4 +1,44 @@
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?request=$1 [QSA,L]
+# ============================================================================
+# PROTOCOLOS DE SEGURIDAD APACHE / LITESPEED - HOSTINGER API BACKEND
+# ============================================================================
+
+# 1. Desactivar listado de directorios (evita que extraños vean los archivos)
+Options -Indexes
+
+# 2. Pasar cabecera Authorization a PHP (Vital para tokens JWT en Hostinger/FPM)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+# 3. Bloquear acceso directo a archivos confidenciales del backend
+<FilesMatch "^(config\.php|schema\.sql|\.env|\.git|\.htaccess|\.log|\.lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 4. Proteger archivos ocultos (que inician con punto)
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 5. Enrutamiento REST hacia index.php
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?request=$1 [QSA,L]
+</IfModule>
+
+# 6. Forzar codificación UTF-8
+AddDefaultCharset UTF-8

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_URL = 'http://localhost/backend';
+// Configuración del endpoint de API (compatible con Hostinger en /api y localhost en /backend)
+const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost/backend' : '/api');
 
 export default function Login() {
   const [username, setUsername] = useState('');

@@ -6,7 +6,8 @@ import { mockApi } from '../../mockApi'; // Importar simulador local
 import HeatmapCalendar from '../../components/admin/HeatmapCalendar';
 import DailyAgendaModal from '../../components/admin/DailyAgendaModal';
 
-const API_URL = 'http://localhost/backend';
+// Configuración del endpoint de API (compatible con Hostinger en /api y localhost en /backend)
+const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost/backend' : '/api');
 
 export default function Dashboard() {
   const navigate = useNavigate();
